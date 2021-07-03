@@ -11,6 +11,8 @@ libraryDependencies += guice
 libraryDependencies += "com.yahoofinance-api" % "YahooFinanceAPI" % "3.14.0"
 libraryDependencies += "org.webjars" % "jquery" % "3.6.0"
 libraryDependencies += "org.webjars.npm" % "chart.js" % "3.3.0"
+libraryDependencies += "org.webjars" % "bootstrap" % "4.4.1" exclude("org.webjars", "jquery")
+libraryDependencies += "com.adrianhurt" %% "play-bootstrap" % "1.6.1-P28-B4"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
 
 
