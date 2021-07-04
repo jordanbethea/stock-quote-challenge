@@ -5,8 +5,17 @@ import scala.util.{Failure, Success, Try}
 
 class FinanceService {
 
-  def getStockFromSymbol(symbol:String): Stock = {
-    YahooFinance.get(symbol)
+  def getStockFromSymbol(symbol:String): Either[Stock, String] = {
+    val stockTry = Try(Option(YahooFinance.get(symbol)))
+    stockTry match {
+      case Failure(ex) => Right(ex.toString)
+      case Success(value) => {
+        value match {
+          case None => Right(s"No stock with code ${symbol} was found")
+          case Some(stock) => Left(stock)
+        }
+      }
+    }
   }
 
   /**
@@ -15,6 +24,9 @@ class FinanceService {
    * @return  Left side is Price, or None if stock or quote could not be found. Right side is exception error messages
    */
   def getCurrentPriceForStock(symbol: String): Either[Option[BigDecimal], String] = {
+    //this function is more complicated than you'd think because I wanted to contain the whole thing in a single
+    //step for the service, and it requires two nested function calls that could return nulls or exceptions, and I
+    //wanted to handle all of them here.
     val stockTry = Try(Option(YahooFinance.get(symbol))) //could return IOException
     stockTry match {
       case Success(stock) => {
