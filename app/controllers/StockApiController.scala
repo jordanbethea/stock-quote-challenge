@@ -22,14 +22,22 @@ class StockApiController @Inject()(val controllerComponents: ControllerComponent
     val stockCode:Option[String] = requestToParse.flatMap(r => Option((r \ "code").as[String]))
 
     stockCode match {
-      case None => BadRequest("No stock code supplied")
+      case None => BadRequest("Unparseable request")
       case Some(code) => {
-        val lookupResult = financeService.getStockFromSymbol(code)
-        lookupResult match {
-          case Right(err) => InternalServerError(err)
-          case Left(stock) => {
-            watchStocks += code
-            Ok(s"Stock ${code} added to watchlist")
+        if(code == ""){
+          BadRequest("No stock code supplied")
+        } else {
+          val lookupResult = financeService.getStockFromSymbol(code)
+          lookupResult match {
+            case Right(err) => InternalServerError(err)
+            case Left(stock) => {
+              if (watchStocks.contains(code)) {
+                Ok("Stock already in watchlist")
+              } else {
+                watchStocks += code
+                Ok(s"Stock ${code} added to watchlist")
+              }
+            }
           }
         }
       }
