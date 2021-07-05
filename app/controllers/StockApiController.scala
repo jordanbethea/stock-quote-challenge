@@ -14,6 +14,8 @@ class StockApiController @Inject()(val controllerComponents: ControllerComponent
   val watchStocks = ListBuffer[String]()
 
   def getWatchStocks = Action { request =>
+    Console.println(watchStocks.toString())
+    Console.println(Json.toJson(watchStocks.toList))
     Ok(Json.toJson(watchStocks.toList))
   }
 
@@ -56,24 +58,15 @@ class StockApiController @Inject()(val controllerComponents: ControllerComponent
     }
   }
 
-  def getSingleStockPrice = Action(parse.json) { request =>
-    val requestToParse: JsResult[StockRequestDTO] = Json.fromJson[StockRequestDTO](request.body)
-    val parseResult = requestToParse match {
-      case JsSuccess(value: StockRequestDTO, _) => Left(value)
-      case e @ JsError(errVal) => Right(errVal.toString)
-    }
-    parseResult match {
-      case Right(err) => BadRequest(err)
-      case Left(request) => {
-        val priceResult = financeService.getCurrentPriceForStock(request.symbol)
-        priceResult match {
-          case Right(err) => InternalServerError(err)
-          case Left(priceOpt) => {
-            priceOpt match {
-              case None => InternalServerError("Stock or Price not found")
-              case Some(price) => Ok(Json.toJson(StockQuoteDTO(price)))
-            }
-          }
+  def getSingleStockPrice(code:String, avgMode:Option[String]) = Action { request =>
+
+    val priceResult = financeService.getCurrentPriceForStock(code)
+    priceResult match {
+      case Right(err) => InternalServerError(err)
+      case Left(priceOpt) => {
+        priceOpt match {
+          case None => InternalServerError("Stock or Price not found")
+          case Some(price) => Ok(Json.toJson(StockQuoteDTO(price)))
         }
       }
     }

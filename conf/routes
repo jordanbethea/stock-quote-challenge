@@ -12,6 +12,8 @@ PUT     /api/watchList              controllers.StockApiController.addWatchStock
 +nocsrf
 DELETE  /api/watchList              controllers.StockApiController.removeWatchStock
 
+GET     /api/stockInfo              controllers.StockApiController.getSingleStockPrice(code: String, avgMode:Option[String])
+
 
 
 # Map static resources from the /public folder to the /assets URL path

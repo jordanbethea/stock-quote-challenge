@@ -14,6 +14,8 @@
 
 
   <script type="text/javascript">
+    var watchedStocks;
+
     function addStock(){
       let code = $("#addStock").val();
       let request = $.ajax({
@@ -35,10 +37,37 @@
     function loadStocks(){
       let stocks = [];
       $.getJSON("api/watchList", function(data){
-        $("#watchedStocksList").html(data);
-      })
+        watchedStocks = data;
+        console.log(JSON.stringify(data))
+        $("#watchedStocksList").html("");
+        $.each(data, function(index, val){
+          $("#watchedStocksList").append(createStockTemplate(val));
+        });
+      }).always(function(){
+        updateStockValues();
+      });
+    }
+    function createStockTemplate(code){
+      let stockTemplate = `<li>
+            <h4>${code}</h4>
+            <h4 id="price_${code}"></h4>
+            <p id="msg_${code}"></p>
+        </li>`;
+      return $(stockTemplate);
     }
 
-    $.ready(loadStocks)
+    function updateStockValues(){
+      $.each(watchedStocks, function(index, val){
+        let reqJson = {code: val};
+        $.getJSON("api/stockInfo", reqJson, function(data){
+          $(`#price_${val}`).html(`Current Price: ${data.currentPrice}`);
+        }).fail(function(msg){
+          $(`#msg_${val}`).html(msg.responseText);
+        });
+      });
+    }
+
+    $.ready(loadStocks);
+    $.ready(setInterval(updateStockValues(), 30000));
   </script>
 }
