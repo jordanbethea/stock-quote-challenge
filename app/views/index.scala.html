@@ -2,6 +2,41 @@
 
 @main("Check some Stocks!") {
   <h1>Check some stock prices!</h1>
-  @b4
+  Watched Stocks:
+  <ul id="watchedStocksList">
 
+  </ul>
+  <button onclick="loadStocks()">Reload Stocks</button>
+  <h6>Add a stock to watch:</h6>
+  <input type="text" id="addStock">
+  <button id="addStockButton" onclick="addStock()">Add Stock to watchlist</button>
+  <p id="watchListMessage"></p>
+  <script type="text/javascript">
+    function addStock(){
+      let code = $("#addStock").val();
+      let request = $.ajax({
+        method: "PUT",
+        url: "/api/watchList",
+        processData: false,
+        contentType: 'application/json',
+        data: JSON.stringify({ code : code })
+      });
+      request.done(function(msg) {
+        $("#watchListMessage").append("Added code");
+        loadStocks();
+      })
+      request.fail(function(jqXHR, msg){
+        $("#watchListMessage").append(jqXHR.responseText);
+      })
+    }
+
+    function loadStocks(){
+      let stocks = [];
+      $.getJSON("api/watchList", function(data){
+        $("#watchedStocksList").append(data);
+      })
+    }
+
+    $.ready(loadStocks)
+  </script>
 }

@@ -1,12 +1,11 @@
 package controllers
 
-import com.fasterxml.jackson.module.scala.deser.overrides.MutableList
 import models.{StockQuoteDTO, StockRequestDTO}
 import play.api.libs.json.{JsError, JsPath, JsResult, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, BaseController, ControllerComponents}
 import services.FinanceService
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import collection.mutable.ListBuffer
 
 @Singleton
@@ -19,7 +18,9 @@ class StockApiController @Inject()(val controllerComponents: ControllerComponent
   }
 
   def addWatchStock = Action{ request =>
-    val stockCode = request.body.asText
+    val requestToParse = request.body.asJson
+    val stockCode:Option[String] = requestToParse.flatMap(r => Option((r \ "code").as[String]))
+
     stockCode match {
       case None => BadRequest("No stock code supplied")
       case Some(code) => {
@@ -36,7 +37,8 @@ class StockApiController @Inject()(val controllerComponents: ControllerComponent
   }
 
   def removeWatchStock = Action { request =>
-    val stockCode = request.body.asText
+    val requestToParse = request.body.asJson
+    val stockCode = Option("") //requestToParse \ "code"
     stockCode match {
       case None => BadRequest("No stock code supplied")
       case Some(code) => {
