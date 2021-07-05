@@ -1,12 +1,14 @@
 package services
 import yahoofinance.{Stock, YahooFinance}
+
+import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
 
 
-class FinanceService {
+class FinanceService @Inject()(val yahooF:YahooFinanceWrapper) {
 
   def getStockFromSymbol(symbol:String): Either[Stock, String] = {
-    val stockTry = Try(Option(YahooFinance.get(symbol)))
+    val stockTry = Try(Option(yahooF.getStockRaw(symbol)))
     stockTry match {
       case Failure(ex) => Right(ex.toString)
       case Success(value) => {
@@ -27,7 +29,7 @@ class FinanceService {
     //this function is more complicated than you'd think because I wanted to contain the whole thing in a single
     //step for the service, and it requires two nested function calls that could return nulls or exceptions, and I
     //wanted to handle all of them here.
-    val stockTry = Try(Option(YahooFinance.get(symbol))) //could return IOException
+    val stockTry = Try(Option(yahooF.getStockRaw(symbol))) //could return IOException
     stockTry match {
       case Success(stock) => {
         stock match {

@@ -13,6 +13,7 @@ libraryDependencies += "org.webjars" % "jquery" % "3.6.0"
 libraryDependencies += "org.webjars.npm" % "chart.js" % "3.3.0"
 libraryDependencies += "org.webjars" % "bootstrap" % "4.4.1" exclude("org.webjars", "jquery")
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
+libraryDependencies += "org.scalamock" %% "scalamock" % "5.1.0" % Test
 
 
 // Adds additional packages into Twirl
