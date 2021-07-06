@@ -3,20 +3,21 @@ package controllers
 import models.{StockQuoteDTO, StockRequestDTO}
 import play.api.libs.json.{JsError, JsPath, JsResult, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, BaseController, ControllerComponents}
-import services.FinanceService
+import services.{FinanceService, WatchlistService}
 
 import javax.inject.{Inject, Singleton}
 import collection.mutable.ListBuffer
 
 @Singleton
-class StockApiController @Inject()(val controllerComponents: ControllerComponents, financeService: FinanceService) extends BaseController {
+class StockApiController @Inject()(val controllerComponents: ControllerComponents,
+                                   financeService: FinanceService,
+                                   watchlistService: WatchlistService)
+  extends BaseController {
 
-  val watchStocks = ListBuffer[String]()
+  //val watchStocks = ListBuffer[String]()
 
   def getWatchStocks = Action { request =>
-    Console.println(watchStocks.toString())
-    Console.println(Json.toJson(watchStocks.toList))
-    Ok(Json.toJson(watchStocks.toList))
+    Ok(Json.toJson(watchlistService.getWatchStocks()))
   }
 
   def addWatchStock = Action{ request =>
@@ -33,11 +34,10 @@ class StockApiController @Inject()(val controllerComponents: ControllerComponent
           lookupResult match {
             case Right(err) => InternalServerError(err)
             case Left(stock) => {
-              if (watchStocks.contains(code)) {
-                Ok("Stock already in watchlist")
-              } else {
-                watchStocks += code
-                Ok(s"Stock ${code} added to watchlist")
+              val result = watchlistService.addWatchStock(code)
+              result match {
+                case None => Ok("Stock already in watchlist")
+                case Some(_) => Ok(s"Stock ${code} added to watchlist")
               }
             }
           }
@@ -52,7 +52,7 @@ class StockApiController @Inject()(val controllerComponents: ControllerComponent
     stockCode match {
       case None => BadRequest("No stock code supplied")
       case Some(code) => {
-        val result = watchStocks -= code
+        val result = watchlistService.removeWatchStock(code)
         Ok(s"Stock ${code} removed from watchlist")
       }
     }
