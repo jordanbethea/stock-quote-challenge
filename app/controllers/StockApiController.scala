@@ -48,7 +48,7 @@ class StockApiController @Inject()(val controllerComponents: ControllerComponent
 
   def removeWatchStock = Action { request =>
     val requestToParse = request.body.asJson
-    val stockCode = Option("") //requestToParse \ "code"
+    val stockCode: Option[String] = requestToParse.flatMap(r => Option((r \ "code").as[String]))
     stockCode match {
       case None => BadRequest("No stock code supplied")
       case Some(code) => {

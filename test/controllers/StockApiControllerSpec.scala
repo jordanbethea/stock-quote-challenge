@@ -40,10 +40,11 @@ class StockApiControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injec
     "remove from watchlist on DELETE" in {
       val financeServiceMock = mock[FinanceService]
       val watchlistServiceMock = mock[WatchlistService]
-      (watchlistServiceMock.removeWatchStock _).expects("goog").returns(_)
+      (watchlistServiceMock.removeWatchStock _).expects("goog")
 
       val controller = new StockApiController(stubControllerComponents(), financeServiceMock, watchlistServiceMock)
-      val removeResult = controller.removeWatchStock().apply(FakeRequest())
+      val request = FakeRequest(DELETE, "/api/watchlist").withJsonBody(Json.obj("code" -> "goog"))
+      val removeResult = controller.removeWatchStock().apply(request)
 
       status(removeResult) mustBe OK
       contentAsString(removeResult) mustBe ("Stock goog removed from watchlist")
